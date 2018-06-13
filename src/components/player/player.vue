@@ -6,7 +6,7 @@
                   @leave="leave"
                   @after-leave="afterLeave"
       >
-        <div class="normal-player" v-show="fullScreen" @click="test(currentSong)">
+        <div class="normal-player" v-show="fullScreen" @click.stop="test(currentSong)">
             <div class="background">
               <img width="100%" height="100%" :src="currentSong.image">
             </div>
@@ -27,24 +27,29 @@
               </div>
             </div>
             <div class="bottom">
-                <div class="operators">
-                  <div class="icon i-left">
+              <div class="progress-wrapper">
+                <span class="time time-l">{{format(currentTime)}}</span>
+                <div class="progress-bar-wrapper"></div>
+                <span class="time time-r">{{format(currentSong.duration)}}</span>
+              </div>
+              <div class="operators">
+                <div class="icon i-left">
                     <i class="icon-sequence"></i>
                   </div>
-                  <div class="icon i-left">
-                    <i class="icon-prev"></i>
+                  <div class="icon i-left" :class="disableCls">
+                    <i @click="prev" class="icon-prev"></i>
                   </div>
-                  <div class="icon i-center">
+                  <div class="icon i-center" :class="disableCls">
                     <i @click="togglePlaying" :class="playIcon"></i>
                   </div>
-                  <div class="icon i-right">
-                    <i class="icon-next"></i>
+                  <div class="icon i-right" :class="disableCls">
+                    <i @click="next" class="icon-next"></i>
                   </div>
                   <div class="icon i-right">
                     <i class="icon-not-favorite"></i>
                   </div>
-                </div>
               </div>
+            </div>
         </div>
       </transition>
       <transition name=mini>
@@ -64,7 +69,12 @@
           </div>
         </div>
       </transition>
-      <audio ref="audio" :src="currentSong.url"></audio>
+      <audio ref="audio"
+        :src="currentSong.url"
+        @canplay="ready"
+        @error="error"
+        @timeupdate="updateTime"
+        ></audio>
     </div>
 </template>
 
@@ -75,6 +85,12 @@ import animations from 'create-keyframe-animation'
 // import {prefixStyle} from 'common/js/dom'
 // const transform = prefixStyle
 export default {
+  data() {
+    return {
+      songReady: false,
+      currentTime: 0
+    }
+  },
   computed: {
     cdCls() {
       return this.playing ? 'play' : 'play pause'
@@ -84,6 +100,9 @@ export default {
     },
     miniIcon() {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini'
+    },
+    disableCls() {
+      return this.songReady ? '' : 'disable'
     },
     ...mapGetters([
       'currentIndex',
@@ -95,7 +114,7 @@ export default {
   },
   methods: {
     test(currentSong) {
-      // console.log(currentSong.url + ',')
+      // console.log(currentSong)
     },
     back() {
       this.setFullScreen(false)
@@ -173,6 +192,34 @@ export default {
       // this.$refs.cdWrapper.style[transform] = ''
     },
     // create-keyframe-animation 使用 结束
+    ready() {
+      this.songReady = true
+    },
+    // 歌曲加载失败 例如url有问题  收费歌曲无法获得vkey
+    // 导致无法 使得this.songReady = true next prev 无法使用
+    error() {
+      alert('无法获取该歌曲')
+      this.songReady = true
+    },
+    updateTime(e) {
+      // e.target.currentTime可读写的属性
+      this.currentTime = e.target.currentTime
+    },
+    // 格式化时间
+    format(interval) {
+      interval = interval | 0
+      const minute = interval / 60 | 0
+      const second = this._pad(interval % 60)
+      return `${minute}:${second}`
+    },
+    _pad(num, n = 2) {
+      let len = num.toString().length
+      while (len < n) {
+        num = '0' + num
+        len++
+      }
+      return num
+    },
     _getPosAndScale() {
       const targetWidth = 40
       const paddingLeft = 40
@@ -191,9 +238,37 @@ export default {
     togglePlaying() {
       this.setPlayingState(!this.playing)
     },
+    next() {
+      if (!this.songReady) {
+        return
+      }
+      let index = this.currentIndex + 1
+      if (index === this.playlist.length) {
+        index = 0
+      }
+      this.setCurrentIndex(index)
+      this.songReady = false
+    },
+    prev() {
+      if (!this.songReady) {
+        return
+      }
+      let index = this.currentIndex - 1
+      if (index === -1) {
+        index = this.playlist.length - 1
+      }
+      this.setCurrentIndex(index)
+      // 播放时 切换歌曲 同时改变playing状态 开始
+      if (!this.playing) {
+        this.togglePlaying()
+      }
+      // 播放时 切换歌曲 同时改变playing状态 结束
+      this.songReady = false
+    },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
-      setPlayingState: 'SET_PLAYING_STATE'
+      setPlayingState: 'SET_PLAYING_STATE',
+      setCurrentIndex: 'SET_CURRENT_INDEX'
     })
   },
   watch: {

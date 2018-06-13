@@ -85,7 +85,6 @@ export default {
     back() {
       // 返回
       this.$router.back()
-      console.log('back')
     },
     selectItem(item, index) {
       this.selectPlay({

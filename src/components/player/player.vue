@@ -119,6 +119,7 @@ export default {
       this.$refs.cdWrapper.style.animation = ''
     },
     // 该动画后部分功能会影响singer-detail的回退
+    //
     leave(el, done) {
       this.$refs.cdWrapper.style.transition = 'all 0.4s'
       const {x, y, scale} = this._getPosAndScale()

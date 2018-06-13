@@ -22,5 +22,5 @@ export default new Vuex.Store({
   mutations,
   strict: debug,
 
-  plugin: debug ? [createLogger()] : []
+  plugins: debug ? [createLogger()] : []
 })

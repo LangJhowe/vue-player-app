@@ -68,9 +68,9 @@
 <script>
 import {mapGetters, mapMutations} from 'vuex'
 import animations from 'create-keyframe-animation'
-import {prefixStyle} from 'common/js/dom'
-
-const transform = prefixStyle
+// animation用了transition会影响singerdetail的返回问题（被player的背景覆盖，player v-show失效 class混乱）
+// import {prefixStyle} from 'common/js/dom'
+// const transform = prefixStyle
 export default {
   computed: {
     ...mapGetters([
@@ -88,6 +88,7 @@ export default {
     open() {
       this.setFullScreen(true)
     },
+    // create-keyframe-animation 使用 开始
     enter(el, done) {
       const {x, y, scale} = this._getPosAndScale()
 
@@ -118,17 +119,45 @@ export default {
       animations.unregisterAnimation('move')
       this.$refs.cdWrapper.style.animation = ''
     },
-    // 该动画后部分功能会影响singer-detail的回退
+    // 该动画后部分（注释）功能会影响singer-detail的回退
+    // 使用enter和afterEnter的方法则可行
     leave(el, done) {
-      this.$refs.cdWrapper.style.transition = 'all 0.4s'
       const {x, y, scale} = this._getPosAndScale()
-      this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`
-      this.$refs.cdWrapper.addEventListener('transitionend', done)
+
+      let animation = {
+        0: {
+          transform: `translate3d(0,0,0) scale(1)`
+        },
+        60: {
+          transform: `translate3d(0,0,0) scale(1.1)`
+        },
+        100: {
+          transform: `translate3d(${x}px,${y}px,0) scale(${scale})`
+        }
+      }
+
+      animations.registerAnimation({
+        name: 'out',
+        animation,
+        presets: {
+          duration: 400,
+          easing: 'linear'
+        }
+      })
+
+      animations.runAnimation(this.$refs.cdWrapper, 'out', done)
+      // this.$refs.cdWrapper.style.transition = 'all 0.4s'
+      // const {x, y, scale} = this._getPosAndScale()
+      // this.$refs.cdWrapper.style[transform] = `translate3d(${x}px,${y}px,0) scale(${scale})`
+      // this.$refs.cdWrapper.addEventListener('transitionend', done)
     },
     afterLeave() {
-      this.$refs.cdWrapper.style.transition = ''
-      this.$refs.cdWrapper.style[transform] = ''
+      animations.unregisterAnimation('out')
+      this.$refs.cdWrapper.style.animation = ''
+      // this.$refs.cdWrapper.style.transition = ''
+      // this.$refs.cdWrapper.style[transform] = ''
     },
+    // create-keyframe-animation 使用 结束
     _getPosAndScale() {
       const targetWidth = 40
       const paddingLeft = 40

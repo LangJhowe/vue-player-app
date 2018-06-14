@@ -29,7 +29,9 @@
             <div class="bottom">
               <div class="progress-wrapper">
                 <span class="time time-l">{{format(currentTime)}}</span>
-                <div class="progress-bar-wrapper"></div>
+                <div class="progress-bar-wrapper">
+                  <progress-bar :percent="percent" @percentChange="onProgressBarChange(percent)"></progress-bar>
+                </div>
                 <span class="time time-r">{{format(currentSong.duration)}}</span>
               </div>
               <div class="operators">
@@ -81,6 +83,7 @@
 <script>
 import {mapGetters, mapMutations} from 'vuex'
 import animations from 'create-keyframe-animation'
+import ProgressBar from 'base/progress-bar/progress-bar'
 // animation用了transition会影响singerdetail的返回问题（被player的背景覆盖，player v-show失效 class混乱）
 // import {prefixStyle} from 'common/js/dom'
 // const transform = prefixStyle
@@ -103,6 +106,9 @@ export default {
     },
     disableCls() {
       return this.songReady ? '' : 'disable'
+    },
+    percent() {
+      return this.currentTime / this.currentSong.duration
     },
     ...mapGetters([
       'currentIndex',
@@ -212,6 +218,9 @@ export default {
       const second = this._pad(interval % 60)
       return `${minute}:${second}`
     },
+    onProgressBarChange(percent) {
+      this.$refs.audio.currentTime = this.currentSong.duration * percent
+    },
     _pad(num, n = 2) {
       let len = num.toString().length
       while (len < n) {
@@ -285,7 +294,7 @@ export default {
     }
   },
   components: {
-
+    ProgressBar
   }
 }
 </script>

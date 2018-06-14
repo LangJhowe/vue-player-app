@@ -30,7 +30,11 @@
               <div class="progress-wrapper">
                 <span class="time time-l">{{format(currentTime)}}</span>
                 <div class="progress-bar-wrapper">
+<<<<<<< HEAD
                   <progress-bar :percent="percent" @percentChange="onProgressBarChange"></progress-bar>
+=======
+                  <progress-bar :percent="percent" @percentChange="onProgressBarChange(percent)"></progress-bar>
+>>>>>>> 60e16c85b9553a5c9247edccadc279deb495bbe4
                 </div>
                 <span class="time time-r">{{format(currentSong.duration)}}</span>
               </div>
@@ -219,7 +223,10 @@ export default {
       return `${minute}:${second}`
     },
     onProgressBarChange(percent) {
+<<<<<<< HEAD
       // 注意template中的是onProgressBarChange 不是 onProgressBarChange(percent)否则拖动会回退
+=======
+>>>>>>> 60e16c85b9553a5c9247edccadc279deb495bbe4
       this.$refs.audio.currentTime = this.currentSong.duration * percent
     },
     _pad(num, n = 2) {

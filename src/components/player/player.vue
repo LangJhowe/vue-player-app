@@ -30,11 +30,7 @@
               <div class="progress-wrapper">
                 <span class="time time-l">{{format(currentTime)}}</span>
                 <div class="progress-bar-wrapper">
-<<<<<<< HEAD
                   <progress-bar :percent="percent" @percentChange="onProgressBarChange"></progress-bar>
-=======
-                  <progress-bar :percent="percent" @percentChange="onProgressBarChange(percent)"></progress-bar>
->>>>>>> 60e16c85b9553a5c9247edccadc279deb495bbe4
                 </div>
                 <span class="time time-r">{{format(currentSong.duration)}}</span>
               </div>
@@ -68,7 +64,9 @@
             <p class="desc" v-html="currentSong.singer"></p>
           </div>
           <div class="control">
-            <i :class="miniIcon" @click.stop="togglePlaying"></i>
+            <progress-circle :radius="32">
+              <i class="icon-mini" :class="miniIcon" @click.stop="togglePlaying"></i>
+            </progress-circle>
           </div>
           <div class="control">
             <i class="icon-playlist"></i>
@@ -88,6 +86,7 @@
 import {mapGetters, mapMutations} from 'vuex'
 import animations from 'create-keyframe-animation'
 import ProgressBar from 'base/progress-bar/progress-bar'
+import ProgressCircle from 'base/progress-circle/progress-circle'
 // animation用了transition会影响singerdetail的返回问题（被player的背景覆盖，player v-show失效 class混乱）
 // import {prefixStyle} from 'common/js/dom'
 // const transform = prefixStyle
@@ -223,10 +222,7 @@ export default {
       return `${minute}:${second}`
     },
     onProgressBarChange(percent) {
-<<<<<<< HEAD
       // 注意template中的是onProgressBarChange 不是 onProgressBarChange(percent)否则拖动会回退
-=======
->>>>>>> 60e16c85b9553a5c9247edccadc279deb495bbe4
       this.$refs.audio.currentTime = this.currentSong.duration * percent
     },
     _pad(num, n = 2) {
@@ -302,7 +298,8 @@ export default {
     }
   },
   components: {
-    ProgressBar
+    ProgressBar,
+    ProgressCircle
   }
 }
 </script>

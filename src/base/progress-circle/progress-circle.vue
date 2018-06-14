@@ -1,37 +1,44 @@
 <template>
   <div class="progress-circle">
+    <!-- viewBox 视口（0,0）=> （100,100） -->
     <svg :width="radius" :height="radius" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">
       <circle class="progress-background" r="50" cx="50" cy="50" fill="transparent"/>
-      <circle class="progress-bar" r="50" cx="50" cy="50" fill="transparent" :stroke-dasharray="dashArray"
-              :stroke-dashoffset="dashOffset"/>
+      <circle class="progress-bar" r="50" cx="50" cy="50" fill="transparent" :stroke-dasharray="dasharray"
+      :stroke-dashoffset="dashoffset"/>
     </svg>
+    <!--
+      stroke-dasharray属性用来设置描边的点划线的图案范式。就是设置实线和虚线的宽度
+      stroke-dashoffset则指定了dash模式到路径开始的距离，就是实线虚线绘制的起点距路径开始的距离
+      描边stroke-dasharray="314" 50*2*3.14
+      stroke-dashoffset="157" 即一个完整圆边
+      -->
     <slot></slot>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
-  export default {
-    props: {
-      radius: {
-        type: Number,
-        default: 100
-      },
-      percent: {
-        type: Number,
-        default: 0
-      }
+export default {
+  props: {
+    radius: {
+      type: Number,
+      default: 100
     },
-    data() {
-      return {
-        dashArray: Math.PI * 100
-      }
-    },
-    computed: {
-      dashOffset() {
-        return (1 - this.percent) * this.dashArray
-      }
+    percent: {
+      type: Number,
+      default: 0
+    }
+  },
+  data() {
+    return {
+      dashArray: Math.PI * 100
+    }
+  },
+  computed: {
+    dashOffset() {
+      return (1 - this.percent) * this.dashArray
     }
   }
+}
 </script>
 
 <style scoped lang="stylus" rel="stylesheet/stylus">

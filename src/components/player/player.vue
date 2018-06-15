@@ -78,6 +78,7 @@
         @canplay="ready"
         @error="error"
         @timeupdate="updateTime"
+        @ended="end"
         ></audio>
     </div>
 </template>
@@ -88,6 +89,7 @@ import animations from 'create-keyframe-animation'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
 import {playMode} from 'common/js/config'
+import {shuffle} from 'common/js/utils'
 // animation用了transition会影响singerdetail的返回问题（被player的背景覆盖，player v-show失效 class混乱）
 // import {prefixStyle} from 'common/js/dom'
 // const transform = prefixStyle
@@ -123,7 +125,8 @@ export default {
       'playing',
       'playlist',
       'currentSong',
-      'mode'
+      'mode',
+      'sequenceList'
     ])
   },
   methods: {
@@ -233,6 +236,31 @@ export default {
     changeMode() {
       const mode = (this.mode + 1) % 3
       this.setPlayMode(mode)
+      let list = null
+      if (mode === playMode.random) {
+        list = shuffle(this.sequenceList)
+      } else {
+        list = this.sequenceList
+      }
+      this.resetCurrentIndex(list)
+      this.setPlaylist(list)
+    },
+    resetCurrentIndex(list) {
+      let index = list.findIndex((item) => {
+        return item.id === this.currentSong.id
+      })
+      this.setCurrentIndex(index)
+    },
+    end() {
+      if (this.mode === playMode.loop) {
+        this.loop()
+      } else {
+        this.next()
+      }
+    },
+    loop() {
+      this.$refs.audio.currentTime = 0
+      this.$refs.audio.play()
     },
     _pad(num, n = 2) {
       let len = num.toString().length
@@ -291,13 +319,18 @@ export default {
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
       setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayMode: 'SET_PLAY_MODE'
+      setPlayMode: 'SET_PLAY_MODE',
+      setPlaylist: 'SET_PLAYLIST'
     })
   },
   watch: {
-    currentSong() {
+    currentSong(newSong, oldSong) {
+      if (newSong.id === oldSong.id) { // 视频出现问题：当暂停的时候切换mode会自动播放 但是实际开发项目中不加也没什么问题 不知道什么原因
+        return
+      }
       this.$nextTick(() => {
         this.$refs.audio.play()
+        console.log('ccc')
       })
     },
     playing(newPlaying) {

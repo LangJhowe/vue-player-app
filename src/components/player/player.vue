@@ -330,7 +330,6 @@ export default {
       }
       this.$nextTick(() => {
         this.$refs.audio.play()
-        console.log('ccc')
       })
     },
     playing(newPlaying) {

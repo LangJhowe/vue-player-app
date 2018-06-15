@@ -3,8 +3,8 @@
     <!-- viewBox 视口（0,0）=> （100,100） -->
     <svg :width="radius" :height="radius" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg">
       <circle class="progress-background" r="50" cx="50" cy="50" fill="transparent"/>
-      <circle class="progress-bar" r="50" cx="50" cy="50" fill="transparent" :stroke-dasharray="dasharray"
-      :stroke-dashoffset="dashoffset"/>
+      <circle class="progress-bar" r="50" cx="50" cy="50" fill="transparent" :stroke-dasharray="dashArray"
+      :stroke-dashoffset="dashOffset"/>
     </svg>
     <!--
       stroke-dasharray属性用来设置描边的点划线的图案范式。就是设置实线和虚线的宽度

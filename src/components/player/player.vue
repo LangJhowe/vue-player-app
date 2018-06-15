@@ -35,8 +35,8 @@
                 <span class="time time-r">{{format(currentSong.duration)}}</span>
               </div>
               <div class="operators">
-                <div class="icon i-left">
-                    <i class="icon-sequence"></i>
+                <div class="icon i-left" @click="changeMode">
+                    <i :class="iconMode"></i>
                   </div>
                   <div class="icon i-left" :class="disableCls">
                     <i @click="prev" class="icon-prev"></i>
@@ -64,7 +64,7 @@
             <p class="desc" v-html="currentSong.singer"></p>
           </div>
           <div class="control">
-            <progress-circle :radius="32">
+            <progress-circle :radius="32" :percent="percent">
               <i class="icon-mini" :class="miniIcon" @click.stop="togglePlaying"></i>
             </progress-circle>
           </div>
@@ -87,6 +87,7 @@ import {mapGetters, mapMutations} from 'vuex'
 import animations from 'create-keyframe-animation'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
+import {playMode} from 'common/js/config'
 // animation用了transition会影响singerdetail的返回问题（被player的背景覆盖，player v-show失效 class混乱）
 // import {prefixStyle} from 'common/js/dom'
 // const transform = prefixStyle
@@ -113,12 +114,16 @@ export default {
     percent() {
       return this.currentTime / this.currentSong.duration
     },
+    iconMode() {
+      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random'
+    },
     ...mapGetters([
       'currentIndex',
       'fullScreen',
       'playing',
       'playlist',
-      'currentSong'
+      'currentSong',
+      'mode'
     ])
   },
   methods: {
@@ -225,6 +230,10 @@ export default {
       // 注意template中的是onProgressBarChange 不是 onProgressBarChange(percent)否则拖动会回退
       this.$refs.audio.currentTime = this.currentSong.duration * percent
     },
+    changeMode() {
+      const mode = (this.mode + 1) % 3
+      this.setPlayMode(mode)
+    },
     _pad(num, n = 2) {
       let len = num.toString().length
       while (len < n) {
@@ -281,7 +290,8 @@ export default {
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX'
+      setCurrentIndex: 'SET_CURRENT_INDEX',
+      setPlayMode: 'SET_PLAY_MODE'
     })
   },
   watch: {

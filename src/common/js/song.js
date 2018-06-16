@@ -13,7 +13,6 @@ export default class Song {
     this.image = image
     this.url = url
   }
-
   getLyric() {
     if (this.lyric) {
       return Promise.resolve(this.lyric)
@@ -25,13 +24,13 @@ export default class Song {
           this.lyric = Base64.decode(res.lyric)
           resolve(this.lyric)
         } else {
-          // reject('no lyric')
-          alert('no lyric')
+          reject('no lyric')
         }
       })
     })
   }
 }
+
 // 旧
 // export function createSong(musicData) {
 //   return new Song({

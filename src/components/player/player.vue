@@ -330,6 +330,11 @@ export default {
       }
       this.$nextTick(() => {
         this.$refs.audio.play()
+        this.currentSong.getLyric().then((lyric) => {
+          // console.log(lyric)
+        }).catch((error) => {
+          console.log(error)
+        })
       })
     },
     playing(newPlaying) {

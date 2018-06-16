@@ -10,19 +10,20 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {
-      '/': {
-        target: 'https://c.y.qq.com/',
-        secure: false,
-        changeOrigin: true,
-        pathRewrite:{
-          '^/api' : '/'
-        },
-        headers: {
-          referer: 'https://c.y.qq.com'
-        }
-      }
-    },
+    // 使用ProxyTable反向代理 获取歌单
+    // proxyTable: {
+    //   '/': {
+    //     target: 'https://c.y.qq.com/',
+    //     secure: false,
+    //     changeOrigin: true,
+    //     pathRewrite:{
+    //       '^/api' : '/'
+    //     },
+    //     headers: {
+    //       referer: 'https://c.y.qq.com'
+    //     }
+    //   }
+    // },
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST

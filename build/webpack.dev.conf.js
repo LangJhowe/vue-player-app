@@ -14,14 +14,16 @@ const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
 
 //部分qq音乐的api接口不能直接通过jsonp访问,需要通过官方的代理
-// const express = require('express')
-// const axios = require('axios')
-// // //类似与后端node写法
-// const app = express()
-// var apiRoutes = express.Router()
+//类似与后端node写法
+const express = require('express')  
+const axios = require('axios')  
+const app = express()  
+var apiRoutes = express.Router()  
+app.use('/api', apiRoutes)  
 
 //从真实的qq服务器地址,通过axios发送请求，同时修改referer，host成qq相关的host，在发送请求
 //得到响应
+// 旧版本如下，新版在devServer设置
 // apiRoutes.get('/getDiscList', function (reg,res) {
 //   var url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
 //   // var url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
@@ -51,29 +53,60 @@ const devWebpackConfig = merge(baseWebpackConfig, {
 
   // these devServer options should be customized in /config/index.js
   devServer: {
-    // before(app){
-    //   // 由于请求的referer和host不同，所以前端不能拿到数据，需要后端做一个代理
-    //   //  后端向有数据的服务端发送请求，拿到数据，然后前端在向自己的服务器请求那数据
-    //   //  这里使用axios实现ajax请求：axios是一个基于promise的HTTP库，可以用于浏览器和node.js
-    //   // 在浏览器创建XMLHttpRequest对象，从node.js创建http请求
-    //   console.log('before app')
-    //   app.get('/api/getDiscList',(req, res) => {//这里的路径是给前端发送请求的url
-    //     let url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg'
-    //     // axios发送get请求，可以自己配置config
-    //     axios.get(url, {
-    //       headers: {
-    //         'referer': 'https://c.y.qq.com/',
-    //         'host': 'c.y.qq.com',
-    //       },
-    //       //  params是即将与请求一起发送的url参数，无格式对象/URLSearchParams对象
-    //       params: req.query
-    //     }).then((response) => {
-    //       res.json(response.data)  //返回数据
-    //     }).catch((error) => {
-    //       console.log(error)
-    //     })
-    //   })
-    // },
+    before(app){
+    // 由于请求的referer和host不同，所以前端不能拿到数据，需要后端做一个代理
+    // 后端向有数据的服务端发送请求，拿到数据，然后前端在向自己的服务器请求那数据
+    // 这里使用axios实现ajax请求：axios是一个基于promise的HTTP库，可以用于浏览器和node.js
+    // 在浏览器创建XMLHttpRequest对象，从node.js创建http请求
+      //获取歌单
+      app.get('/api/getDiscList', function (req, res) {//这里的路径是给前端发送请求的url  
+        var url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg' 
+        // axios发送get请求，可以自己配置config 
+        axios.get(url, {  
+          headers: {  
+            // referer: 'https://y.qq.com/portal/playlist.html'  
+            referer: 'https://y.qq.com/',  
+            host: 'c.y.qq.com'  
+          },  
+          //  params是即将与请求一起发送的url参数，无格式对象/URLSearchParams对象
+          params: req.query  
+        }).then((response) => {  
+          res.json(response.data)  //返回数据
+        }).catch((e) => {  
+          console.log(e)  
+        })  
+      })
+      // 获取歌词
+      app.get('/api/lyric', function (req, res) {  
+        var url = 'https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg'  
+        axios.get(url, {  
+          headers: {  
+            referer: 'https://y.qq.com/',  
+            host: 'c.y.qq.com'  
+          },  
+          params: req.query  
+        }).then((response) => {
+        // 是jsonp要编译json
+        var ret = response.data
+        if (typeof ret === 'string') {
+          var reg = /^\w+\(({[^()]+})\)$/
+          // \w 以单词a-z，A-Z开头，一个或多个
+          // 转义括号以（）开头结尾
+          // （）是用来分组
+          // 【^()】不以左括号/右括号的字符+多个
+          // {}大括号也要匹配到
+          var matches = ret.match(reg)
+          if (matches) {
+            ret = JSON.parse(matches[1])
+            // 对匹配到的分组的内容进行转换
+          }
+        }
+          res.json(ret)
+        }).catch((e) => {  
+          console.log(e)  
+        })  
+      }) 
+    },
     clientLogLevel: 'warning',
     historyApiFallback: {
       rewrites: [

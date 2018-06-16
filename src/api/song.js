@@ -1,19 +1,18 @@
 import {commonParams} from './config'
 import axios from 'axios'
 
-export function getLyric(mid) {
+export function getLyric (mid) {
   const url = '/api/lyric'
 
   const data = Object.assign({}, commonParams, {
-    songmid: mid,
-    platform: 'yqq',
+    g_tk: 2009705742,
+    pcachetime: +new Date(), // 这里是一段时间戳
     hostUin: 0,
+    format: 'json', // 因为是请求本地的接口，所以format是json
+    platform: 'yqq',
     needNewCode: 0,
-    categoryId: 10000000,
-    pcachetime: +new Date(),
-    format: 'json'
+    songmid: mid
   })
-
   return axios.get(url, {
     params: data
   }).then((res) => {

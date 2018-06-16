@@ -22,7 +22,7 @@
                  @touchmove="middleTouchMove"
                  @touchend="middleTouchEnd"
             >
-              <div class="middle-l">
+              <div class="middle-l" ref="middleL">
                 <div class="cd-wrapper" ref="cdWrapper">
                   <div class="cd" :class="cdCls">
                     <img class="image" :src="currentSong.image">
@@ -262,8 +262,15 @@ export default {
       return `${minute}:${second}`
     },
     onProgressBarChange(percent) {
+      const currentTime = this.currentSong.duration * percent
       // 注意template中的是onProgressBarChange 不是 onProgressBarChange(percent)否则拖动会回退
       this.$refs.audio.currentTime = this.currentSong.duration * percent
+      if (!this.playing) {
+        this.togglePlaying()
+      }
+      if (this.currentLyric) {
+        this.currentLyric.seek(currentTime * 1000)
+      }
     },
     changeMode() {
       const mode = (this.mode + 1) % 3
@@ -285,12 +292,17 @@ export default {
     },
     getLyric() {
       this.currentSong.getLyric().then((lyric) => {
+        if (this.currentSong.lyric !== lyric) {
+          return
+        }
         this.currentLyric = new Lyric(lyric, this.handleLyric)
         if (this.playing) {
           this.currentLyric.play()
         }
-      }).catch((error) => {
-        console.log(error)
+      }).catch(() => {
+        this.currentLyric = null
+        this.playingLyric = ''
+        this.currentLineNum = 0
       })
     },
     handleLyric({lineNum, txt}) {
@@ -299,8 +311,9 @@ export default {
         let lineEl = this.$refs.lyricLine[lineNum - 5]
         this.$refs.lyricList.scrollToElement(lineEl, 1000)// 滚动到元素
       } else {
-        this.$refs.lyricList.scrollToElement(0, 0, 1000)// 滚动到顶部
+        this.$refs.lyricList.scrollTo(0, 0, 1000)// 滚动到顶部
       }
+      this.playingLyric = txt
     },
     end() {
       if (this.mode === playMode.loop) {
@@ -312,6 +325,9 @@ export default {
     loop() {
       this.$refs.audio.currentTime = 0
       this.$refs.audio.play()
+      if (this.currentLyric) {
+        this.currentLyric.seek(0)
+      }
     },
     middleTouchStart(e) {
       this.touch.initiated = true
@@ -333,29 +349,40 @@ export default {
       const left = this.currentShow === 'cd' ? 0 : -window.innerWidth
       const offsetWidth = Math.min(0, Math.max(-window.innerWidth, left + deltaX))
       this.touch.percent = Math.abs(offsetWidth / window.innerWidth)
+      // $el 因为是直接操作dom而是scroll组件
       this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
       this.$refs.lyricList.$el.style[transitionDuration] = 0
+      this.$refs.middleL.style.opacity = 1 - this.touch.percent
+      this.$refs.middleL.style[transitionDuration] = 0
     },
     middleTouchEnd() {
       let offsetWidth
+      let opacity
       if (this.currentShow === 'cd') {
         if (this.touch.percent > 0.1) {
           offsetWidth = -window.innerWidth
+          opacity = 0
           this.currentShow = 'lyric'
         } else {
           offsetWidth = 0
+          opacity = 1
         }
       } else {
         if (this.touch.percent < 0.9) {
           offsetWidth = 0
+          opacity = 1
           this.currentShow = 'cd'
         } else {
+          opacity = 0
           offsetWidth = -window.innerWidth
         }
       }
       const time = 300
       this.$refs.lyricList.$el.style[transform] = `translate3d(${offsetWidth}px,0,0)`
       this.$refs.lyricList.$el.style[transitionDuration] = `${time}ms`
+      this.$refs.middleL.style.opacity = opacity
+      this.$refs.middleL.style[transitionDuration] = `${time}ms`
+      this.touch.initiated = false
     },
     _pad(num, n = 2) {
       let len = num.toString().length
@@ -381,18 +408,13 @@ export default {
       }
     },
     togglePlaying() {
-      this.setPlayingState(!this.playing)
-    },
-    next() {
       if (!this.songReady) {
         return
       }
-      let index = this.currentIndex + 1
-      if (index === this.playlist.length) {
-        index = 0
+      this.setPlayingState(!this.playing)
+      if (this.currentLyric) {
+        this.currentLyric.togglePlay()// 歌词暂停
       }
-      this.setCurrentIndex(index)
-      this.songReady = false
     },
     prev() {
       if (!this.songReady) {
@@ -410,6 +432,17 @@ export default {
       // 播放时 切换歌曲 同时改变playing状态 结束
       this.songReady = false
     },
+    next() {
+      if (!this.songReady) {
+        return
+      }
+      let index = this.currentIndex + 1
+      if (index === this.playlist.length) {
+        index = 0
+      }
+      this.setCurrentIndex(index)
+      this.songReady = false
+    },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
@@ -420,8 +453,17 @@ export default {
   },
   watch: {
     currentSong(newSong, oldSong) {
+      if (!newSong.id) {
+        return
+      }
       if (newSong.id === oldSong.id) { // 视频出现问题：当暂停的时候切换mode会自动播放 但是实际开发项目中不加也没什么问题 不知道什么原因
         return
+      }
+      if (this.currentLyric) {
+        this.currentLyric.stop()// 歌词停止
+        this.currentTime = 0
+        this.playingLyric = ''
+        this.currentLineNum = 0
       }
       this.$nextTick(() => {
         this.$refs.audio.play()

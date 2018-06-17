@@ -8,10 +8,10 @@ export const playlistMixin = {
       'playlist'
     ])
   },
-  mounted() {
+  mounted() { // 组件dom ready的时候触发
     this.handlePlaylist(this.playlist)
   },
-  activated() {
+  activated() { // keep-alive组件切换过来的时候会执行
     this.handlePlaylist(this.playlist)
   },
   watch: {

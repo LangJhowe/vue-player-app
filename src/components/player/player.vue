@@ -28,6 +28,9 @@
                     <img class="image" :src="currentSong.image">
                   </div>
                 </div>
+                <div class="playing-lyric-wrapper">
+                  <div class="playing-lyric">{{playingLyric}}</div>
+                </div>
               </div>
               <scroll class="middle-r" ref="lyricList" :data="currentLyric && currentLyric.lines">
                 <div class="lyric-wrapper">
@@ -126,7 +129,8 @@ export default {
       currentTime: 0,
       currentLyric: null,
       currentLineNum: 0,
-      currentShow: 'cd'
+      currentShow: 'cd',
+      playingLyric: ''
     }
   },
   computed: {
@@ -299,7 +303,7 @@ export default {
         if (this.playing) {
           this.currentLyric.play()
         }
-      }).catch(() => {
+      }).catch(() => { // 获取不到的时候要清空
         this.currentLyric = null
         this.playingLyric = ''
         this.currentLineNum = 0
@@ -384,6 +388,57 @@ export default {
       this.$refs.middleL.style[transitionDuration] = `${time}ms`
       this.touch.initiated = false
     },
+    togglePlaying() {
+      if (!this.songReady) {
+        return
+      }
+      this.setPlayingState(!this.playing)
+      if (this.currentLyric) {
+        this.currentLyric.togglePlay()// 歌词暂停
+      }
+    },
+    prev() {
+      if (!this.songReady) {
+        return
+      }
+      if (this.playinglist.lenght === 1) {
+        // 当歌单只有一首歌的时候
+        // currentSong不会改变也不会执行watch里的内容
+        this.loop()
+      } else {
+        let index = this.currentIndex - 1
+        if (index === -1) {
+          index = this.playlist.length - 1
+        }
+        this.setCurrentIndex(index)
+        // 播放时 切换歌曲 同时改变playing状态 开始
+        if (!this.playing) {
+          this.togglePlaying()
+        }
+      // 播放时 切换歌曲 同时改变playing状态 结束
+      }
+      this.songReady = false
+    },
+    next() {
+      if (!this.songReady) {
+        return
+      }
+      if (this.playinglist.lenght === 1) {
+        // 当歌单只有一首歌的时候
+        // currentSong不会改变也不会执行watch里的内容
+        this.loop()
+      } else {
+        let index = this.currentIndex + 1
+        if (index === this.playlist.length) {
+          index = 0
+        }
+        this.setCurrentIndex(index)
+        if (!this.playing) {
+          this.togglePlaying()
+        }
+      }
+      this.songReady = false
+    },
     _pad(num, n = 2) {
       let len = num.toString().length
       while (len < n) {
@@ -407,42 +462,6 @@ export default {
         scale
       }
     },
-    togglePlaying() {
-      if (!this.songReady) {
-        return
-      }
-      this.setPlayingState(!this.playing)
-      if (this.currentLyric) {
-        this.currentLyric.togglePlay()// 歌词暂停
-      }
-    },
-    prev() {
-      if (!this.songReady) {
-        return
-      }
-      let index = this.currentIndex - 1
-      if (index === -1) {
-        index = this.playlist.length - 1
-      }
-      this.setCurrentIndex(index)
-      // 播放时 切换歌曲 同时改变playing状态 开始
-      if (!this.playing) {
-        this.togglePlaying()
-      }
-      // 播放时 切换歌曲 同时改变playing状态 结束
-      this.songReady = false
-    },
-    next() {
-      if (!this.songReady) {
-        return
-      }
-      let index = this.currentIndex + 1
-      if (index === this.playlist.length) {
-        index = 0
-      }
-      this.setCurrentIndex(index)
-      this.songReady = false
-    },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
@@ -465,10 +484,11 @@ export default {
         this.playingLyric = ''
         this.currentLineNum = 0
       }
-      this.$nextTick(() => {
+      // 保证手机从后台到前台，歌曲可以重新播放
+      setTimeout(() => {
         this.$refs.audio.play()
         this.getLyric()
-      })
+      }, 1000)
     },
     playing(newPlaying) {
       this.$nextTick(() => {

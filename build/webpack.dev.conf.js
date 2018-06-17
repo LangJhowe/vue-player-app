@@ -105,6 +105,36 @@ const devWebpackConfig = merge(baseWebpackConfig, {
         }).catch((e) => {  
           console.log(e)  
         })  
+      }),
+      // 获取推荐歌单的歌曲
+      app.get('/api/recommendlist', function (req, res) {  
+        var url = 'https://c.y.qq.com/qzone/fcg-bin/fcg_ucc_getcdinfo_byids_cp.fcg'  
+        axios.get(url, {  
+          headers: {  
+            referer: 'https://y.qq.com/',  
+            host: 'c.y.qq.com'  
+          },  
+          params: req.query  
+        }).then((response) => {
+          console.log(response)  
+          var ret = response.data
+        if (typeof ret === 'string') {
+          var reg = /^\w+\(({[^()]+})\)$/
+          // \w 以单词a-z，A-Z开头，一个或多个
+          // 转义括号以（）开头结尾
+          // （）是用来分组
+          // 【^()】不以左括号/右括号的字符+多个
+          // {}大括号也要匹配到
+          var matches = ret.match(reg)
+          if (matches) {
+            ret = JSON.parse(matches[1])
+            // 对匹配到的分组的内容进行转换
+          }
+        }
+          res.json(ret)
+        }).catch((e) => {  
+          console.log(e)  
+        })  
       }) 
     },
     clientLogLevel: 'warning',

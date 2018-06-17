@@ -401,7 +401,7 @@ export default {
       if (!this.songReady) {
         return
       }
-      if (this.playinglist.lenght === 1) {
+      if (this.playinglist.length === 1) {
         // 当歌单只有一首歌的时候
         // currentSong不会改变也不会执行watch里的内容
         this.loop()
@@ -423,7 +423,7 @@ export default {
       if (!this.songReady) {
         return
       }
-      if (this.playinglist.lenght === 1) {
+      if (this.playinglist.length === 1) {
         // 当歌单只有一首歌的时候
         // currentSong不会改变也不会执行watch里的内容
         this.loop()

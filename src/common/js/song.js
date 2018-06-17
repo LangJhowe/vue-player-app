@@ -58,7 +58,7 @@ export function createSong (musicData, vkey) { // 格式化歌曲信息
     url: `http://dl.stream.qqmusic.qq.com/C400${musicData.songmid}.m4a?vkey=${vkey}&guid=8282096940&uin=0&fromtag=66`
   })
 }
-function filterSinger(singer) {
+export function filterSinger(singer) {
   let ret = []
   if (!singer) {
     return ''

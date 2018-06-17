@@ -12,7 +12,7 @@ export function getHotKey() {
 
   return jsonp(url, data, options)
 }
-
+// query-检索字符 page-第几页 zhida-直达
 export function search(query, page, zhida, perpage) {
   const url = 'https://c.y.qq.com/soso/fcgi-bin/search_for_qq_cp'
 

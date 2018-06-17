@@ -55,7 +55,7 @@ export default {
       this.setTopList(item)
     },
     _getTopList() {
-      getTopList().then((res) => {
+      getTopList(this.topList.id).then((res) => {
         if (res.code === ERR_OK) {
           this.topList = res.data.topList
         }

@@ -11,6 +11,7 @@ import {getSongList} from 'api/recommend'
 import {ERR_OK} from 'api/config'
 import {createSong} from 'common/js/song'
 import {getSongVkey} from 'common/js/singer'
+import {promisesIter} from 'common/js/utils'
 export default {
   data() {
     return {
@@ -44,17 +45,31 @@ export default {
       })
     },
     _normalizeSongs(list) {
+      // 歌单列表不能保证顺序
+      // let ret = []
+      // list.forEach((item) => {
+      //   let musicData = item
+      //   getSongVkey(musicData.songmid).then((res) => {
+      //     //   console.log('这首歌的vkey获取到了')
+      //     const vkey = res.data.items[0].vkey
+      //     if (musicData.songid && musicData.albumid) {
+      //       ret.push(createSong(musicData, vkey))
+      //     }
+      //   })
+      // })
+      // return ret
       let ret = []
-      list.forEach((item) => {
-        let musicData = item
-        getSongVkey(musicData.songmid).then((res) => {
-          //   console.log('这首歌的vkey获取到了')
-          const vkey = res.data.items[0].vkey
-          if (musicData.songid && musicData.albumid) {
-            ret.push(createSong(musicData, vkey))
-          }
-        })
-      })
+      let promises = []
+      for (let i = 0; i < list.length; i++) {
+        promises.push(getSongVkey(list[i].songmid))
+      }
+      let thenFunction = (res, index) => {
+        const vkey = res.data.items[0].vkey
+        if (list[index].songid && list[index].albummid) {
+          ret.push(createSong(list[index], vkey))
+        }
+      }
+      promisesIter(promises, thenFunction)
       return ret
     }
   },

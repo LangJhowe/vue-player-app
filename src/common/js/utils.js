@@ -26,3 +26,17 @@ export function debounce(func, delay) {
     }, delay)
   }
 }
+
+export function promisesIter(promises, thenFunction) {
+  nextPromise(0, promises)
+  function nextPromise(index, promise) {
+    let length = promise.length
+    if (index >= length) {
+      return // out退出递归
+    }
+    promises[index].then((res) => {
+      thenFunction(res, index)
+      nextPromise(index + 1, promises)
+    })
+  }
+}

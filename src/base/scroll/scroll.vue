@@ -41,7 +41,7 @@ export default {
       type: Array,
       default: null
     },
-    pullup: {
+    pullup: {// 上拉刷新
       type: Boolean,
       default: false
     },
@@ -77,10 +77,10 @@ export default {
         })
       }
 
-      if (this.pullup) {
+      if (this.pullup) { // 监听scrollEnd事件派发事件 只会派发一次
         this.scroll.on('scrollEnd', () => {
           if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
-            this.$emit('scrollToEnd')
+            this.$emit('scrollToEnd')// 滚动到底部
           }
         })
       }

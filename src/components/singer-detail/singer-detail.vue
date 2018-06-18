@@ -9,8 +9,8 @@
     </transition>
 </template>
 <script>
-import {getSongVkey} from 'common/js/singer'
 import {getSingerDetail} from 'api/singer'
+import {getSongVkey} from 'api/song'
 import {ERR_OK} from 'api/config'
 import {mapGetters} from 'vuex'
 import {createSong} from 'common/js/song'

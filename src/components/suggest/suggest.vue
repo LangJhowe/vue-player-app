@@ -28,6 +28,7 @@ import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
 import Singer from 'common/js/singer'
 import {mapMutations, mapActions} from 'vuex'
+import {getSongVkey} from 'api/song'
 const TYPE_SINGER = 'singer'
 const perpage = 20
 export default {
@@ -58,6 +59,16 @@ export default {
         if (res.code === ERR_OK) {
           this.result = this._genResult(res.data)
           this._checkMore(res.data)
+          let list = this.result
+          list.forEach((item, index) => {
+            if (index < 1) {
+              return
+            }
+            getSongVkey(item.mid).then((res) => {
+              let vkey = res.data.items[0].vkey
+              item.url = `http://dl.stream.qqmusic.qq.com/C400${item.mid}.m4a?vkey=${vkey}&guid=8282096940&uin=0&fromtag=66`
+            })
+          })
         }
       })
     },

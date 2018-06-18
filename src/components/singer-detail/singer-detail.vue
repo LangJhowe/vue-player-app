@@ -47,19 +47,28 @@ export default {
       getSingerDetail(this.singer.id).then((res) => {
         if (res.code === ERR_OK) {
           this.songs = this._normalizeSongs(res.data.list)
+          let list = this.songs
+          list.forEach((item) => {
+            getSongVkey(item.mid).then((res) => {
+              let vkey = res.data.items[0].vkey
+              item.url = `http://dl.stream.qqmusic.qq.com/C400${item.mid}.m4a?vkey=${vkey}&guid=8282096940&uin=0&fromtag=66`
+            })
+          })
         }
       })
     },
     _normalizeSongs(list) {
-      // 旧
-      // let ret = []
-      // // console.log('We have this one')
-      // list.forEach((item) => {
-      //   let {musicData} = item // 等价于musicData = item.musicData
-      //   if (musicData.songid && musicData.albummid) {
-      //     ret.push(createSong(musicData))
-      //   }
-      // })
+      // 旧 视频上的 但可以通过上方getSingerDetai内的getSongVkey获得vkey  且不影响列表顺序
+      // 其他类似请求 想disc，rank，search都用这种方法
+      let ret = []
+      // console.log('We have this one')
+      list.forEach((item) => {
+        let {musicData} = item // 等价于musicData = item.musicData
+        if (musicData.songid && musicData.albummid) {
+          ret.push(createSong(musicData))
+        }
+      })
+      return ret
 
       // 新 但问题是每次退回在进入歌手详情 每次的列表都不一样，原因是getSongKey是异步并行 每次的顺序不能确定
       // let ret = []
@@ -80,19 +89,20 @@ export default {
       // return ret
 
       // 解决顺序 递归 递归方法promisesIter已经封装在common/js/utils中
-      let ret = []
-      let promises = []
-      for (let i = 0; i < list.length; i++) {
-        promises.push(getSongVkey(list[i].musicData.songmid))
-      }
-      let thenFunction = (res, index) => {
-        const vkey = res.data.items[0].vkey
-        if (list[index].musicData.songid && list[index].musicData.albummid) {
-          ret.push(createSong(list[index].musicData, vkey))
-        }
-      }
-      promisesIter(promises, thenFunction)
-      return ret
+      // 但是在搜索 result那栏很那处理，无法使用concat
+      // let ret = []
+      // let promises = []
+      // for (let i = 0; i < list.length; i++) {
+      //   promises.push(getSongVkey(list[i].musicData.songmid))
+      // }
+      // let thenFunction = (res, index) => {
+      //   const vkey = res.data.items[0].vkey
+      //   if (list[index].musicData.songid && list[index].musicData.albummid) {
+      //     ret.push(createSong(list[index].musicData, vkey))
+      //   }
+      // }
+      // promisesIter(promises, thenFunction)
+      // return ret
     }
   },
   components: {

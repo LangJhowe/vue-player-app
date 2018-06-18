@@ -41,36 +41,41 @@ export default {
       getSongList(this.disc.dissid).then((res) => {
         if (res.code === ERR_OK) {
           this.songs = this._normalizeSongs(res.cdlist[0].songlist)
+          let list = this.songs
+          list.forEach((item) => {
+            getSongVkey(item.mid).then((res) => {
+              let vkey = res.data.items[0].vkey
+              item.url = `http://dl.stream.qqmusic.qq.com/C400${item.mid}.m4a?vkey=${vkey}&guid=8282096940&uin=0&fromtag=66`
+            })
+          })
         }
       })
     },
     _normalizeSongs(list) {
       // 歌单列表不能保证顺序
-      // let ret = []
-      // list.forEach((item) => {
-      //   let musicData = item
-      //   getSongVkey(musicData.songmid).then((res) => {
-      //     //   console.log('这首歌的vkey获取到了')
-      //     const vkey = res.data.items[0].vkey
-      //     if (musicData.songid && musicData.albumid) {
-      //       ret.push(createSong(musicData, vkey))
-      //     }
-      //   })
-      // })
-      // return ret
       let ret = []
-      let promises = []
-      for (let i = 0; i < list.length; i++) {
-        promises.push(getSongVkey(list[i].songmid))
-      }
-      let thenFunction = (res, index) => {
-        const vkey = res.data.items[0].vkey
-        if (list[index].songid && list[index].albummid) {
-          ret.push(createSong(list[index], vkey))
+      // console.log('We have this one')
+      list.forEach((item) => {
+        let musicData = item
+        if (musicData.songid && musicData.albummid) {
+          ret.push(createSong(musicData))
         }
-      }
-      promisesIter(promises, thenFunction)
+      })
       return ret
+
+      // let ret = []
+      // let promises = []
+      // for (let i = 0; i < list.length; i++) {
+      //   promises.push(getSongVkey(list[i].songmid))
+      // }
+      // let thenFunction = (res, index) => {
+      //   const vkey = res.data.items[0].vkey
+      //   if (list[index].songid && list[index].albummid) {
+      //     ret.push(createSong(list[index], vkey))
+      //   }
+      // }
+      // promisesIter(promises, thenFunction)
+      // return ret
     }
   },
   components: {

@@ -44,36 +44,41 @@ export default {
       getMusicList(this.topList.id).then((res) => {
         if (res.code === ERR_OK) {
           this.songs = this._normalizeSong(res.songlist)
+          let list = this.songs
+          list.forEach((item) => {
+            getSongVkey(item.mid).then((res) => {
+              let vkey = res.data.items[0].vkey
+              item.url = `http://dl.stream.qqmusic.qq.com/C400${item.mid}.m4a?vkey=${vkey}&guid=8282096940&uin=0&fromtag=66`
+            })
+          })
         }
       })
     },
     _normalizeSong(list) {
       // 旧 歌曲顺序会乱
-      // let ret = []
-      // list.forEach((item) => {
-      //   let musicData = item.data
-      //   getSongVkey(musicData.songmid).then((res) => {
-      //   //   console.log('这首歌的vkey获取到了')
-      //     const vkey = res.data.items[0].vkey
-      //     if (musicData.songid && musicData.albummid) {
-      //       ret.push(createSong(musicData, vkey))
-      //     }
-      //   })
-      // })
-      // return ret
       let ret = []
-      let promises = []
-      for (let i = 0; i < list.length; i++) {
-        promises.push(getSongVkey(list[i].data.songmid))
-      }
-      let thenFunction = (res, index) => {
-        const vkey = res.data.items[0].vkey
-        if (list[index].data.songid && list[index].data.albummid) {
-          ret.push(createSong(list[index].data, vkey))
+      console.log(list[0])
+      // console.log('We have this one')
+      list.forEach((item) => {
+        let musicData = item.data
+        if (musicData.songid && musicData.albummid) {
+          ret.push(createSong(musicData))
         }
-      }
-      promisesIter(promises, thenFunction)
+      })
       return ret
+      // let ret = []
+      // let promises = []
+      // for (let i = 0; i < list.length; i++) {
+      //   promises.push(getSongVkey(list[i].data.songmid))
+      // }
+      // let thenFunction = (res, index) => {
+      //   const vkey = res.data.items[0].vkey
+      //   if (list[index].data.songid && list[index].data.albummid) {
+      //     ret.push(createSong(list[index].data, vkey))
+      //   }
+      // }
+      // promisesIter(promises, thenFunction)
+      // return ret
     }
   },
   components: {

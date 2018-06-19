@@ -1,5 +1,5 @@
 import {playMode} from 'common/js/config'
-
+import {loadSearch} from 'common/js/cache'
 const state = {
   singer: {},
   playing: false, // 是否正在播放
@@ -9,6 +9,7 @@ const state = {
   mode: playMode.sequence, // 播放模式
   currentIndex: -1, // 单签歌曲
   disc: {},
-  topList: {}
+  topList: {},
+  searchHistory: loadSearch()// 从本地存储读取数据
 }
 export default state

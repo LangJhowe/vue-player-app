@@ -34,10 +34,13 @@ function deleteFromArray(arr, compare) {
 
 export function saveSearch(query) {
   let searches = storage.get(SEARCH_KEY, [])
+  console.log(storage.get(SEARCH_KEY, []))
   insertArray(searches, query, (item) => { // 插入数组
     return item === query
   }, SEARCH_MAX_LEN)
   storage.set(SEARCH_KEY, searches)
+  console.log(storage.get(SEARCH_KEY, []))
+  console.log(searches)
   return searches
 }
 
@@ -56,6 +59,7 @@ export function clearSearch() {
 }
 
 export function loadSearch() { // searchHistory 本地缓存的信息传给searchHistory
+  console.log(storage.get(SEARCH_KEY, []))
   return storage.get(SEARCH_KEY, [])
 }
 

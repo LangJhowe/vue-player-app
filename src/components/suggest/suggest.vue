@@ -32,7 +32,7 @@ import {createSong} from 'common/js/song'
 import Scroll from 'base/scroll/scroll'
 import Loading from 'base/loading/loading'
 import Singer from 'common/js/singer'
-import {mapMutations, mapActions} from 'vuex'
+import {mapMutations, mapActions, mapGetters} from 'vuex'
 import {getSongVkey} from 'api/song'
 import NoResult from 'base/no-result/no-result'
 const TYPE_SINGER = 'singer'
@@ -56,6 +56,11 @@ export default {
       hasMore: true,
       beforeScroll: true
     }
+  },
+  computed: {
+    ...mapGetters([
+      'searchHistory'
+    ])
   },
   methods: {
     search() {
@@ -81,19 +86,8 @@ export default {
         }
       })
     },
-    getIconCls(item) {
-      if (item.type === TYPE_SINGER) {
-        return 'icon-mine'
-      } else {
-        return 'icon-music'
-      }
-    },
-    getDisplayName(item) {
-      if (item.type === TYPE_SINGER) {
-        return item.singername
-      } else {
-        return `${item.name}-${item.singer}`
-      }
+    listScroll() {
+      this.$emit('listScroll')
     },
     selectItem(item) {
       if (item.type === TYPE_SINGER) {
@@ -108,10 +102,22 @@ export default {
       } else {
         this.insertSong(item)
       }
+      console.log(this.searchHistory)
       this.$emit('select')
     },
-    listScroll() {
-      this.$emit('listScroll')
+    getIconCls(item) {
+      if (item.type === TYPE_SINGER) {
+        return 'icon-mine'
+      } else {
+        return 'icon-music'
+      }
+    },
+    getDisplayName(item) {
+      if (item.type === TYPE_SINGER) {
+        return item.singername
+      } else {
+        return `${item.name}-${item.singer}`
+      }
     },
     _checkMore(data) {
       const song = data.song

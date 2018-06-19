@@ -59,16 +59,6 @@ export default {
         if (res.code === ERR_OK) {
           this.result = this._genResult(res.data)
           this._checkMore(res.data)
-          let list = this.result
-          list.forEach((item, index) => {
-            if (index < 1) {
-              return
-            }
-            getSongVkey(item.mid).then((res) => {
-              let vkey = res.data.items[0].vkey
-              item.url = `http://dl.stream.qqmusic.qq.com/C400${item.mid}.m4a?vkey=${vkey}&guid=8282096940&uin=0&fromtag=66`
-            })
-          })
         }
       })
     },
@@ -79,7 +69,7 @@ export default {
       this.page++
       search(this.query, this.page, this.showSinger, perpage).then((res) => {
         if (res.code === ERR_OK) {
-          this.result = this.result.concat(this._genResult(res.data))
+          this.result = this.result.concat(this._genResult(res.data).splice(1))
           this._checkMore(res.data)
         }
       })
@@ -125,6 +115,16 @@ export default {
       }
       if (data.song) {
         ret = ret.concat(this._normalizeSong(data.song.list))
+        let list = ret
+        list.forEach((item, index) => {
+          if (index < 1) {
+            return
+          }
+          getSongVkey(item.mid).then((res) => {
+            let vkey = res.data.items[0].vkey
+            item.url = `http://dl.stream.qqmusic.qq.com/C400${item.mid}.m4a?vkey=${vkey}&guid=8282096940&uin=0&fromtag=66`
+          })
+        })
       }
       return ret
     },

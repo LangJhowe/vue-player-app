@@ -11,7 +11,6 @@ import {getMusicList} from 'api/rank'
 import {ERR_OK} from 'api/config'
 import {createSong} from 'common/js/song'
 import {getSongVkey} from 'api/song'
-import {promisesIter} from 'common/js/utils'
 export default {
   computed: {
     title() {

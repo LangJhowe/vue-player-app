@@ -15,7 +15,6 @@ import {ERR_OK} from 'api/config'
 import {mapGetters} from 'vuex'
 import {createSong} from 'common/js/song'
 import MusicList from 'components/music-list/music-list'
-import {promisesIter} from 'common/js/utils'
 export default {
   name: 'singerDetail', // 要给name 不给name eslint报错
   data() {

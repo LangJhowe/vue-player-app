@@ -44,6 +44,7 @@ export default class Song {
 //     url: `http://ws.stream.qqmusic.qq.com/${musicData.songid}.m4a?fromtag=46`
 //   })
 // }
+
 // 新
 export function createSong (musicData, vkey) { // 格式化歌曲信息
   return new Song({

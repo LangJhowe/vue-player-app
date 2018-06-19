@@ -43,6 +43,9 @@
                     >{{line.txt}}</p>
                   </div>
                 </div>
+                <div class="no-lyric" v-if="!currentLyric">
+                    <p>{{noLyricText}}</p>
+                  </div>
               </scroll>
             </div>
             <div class="bottom">
@@ -130,7 +133,8 @@ export default {
       currentLyric: null,
       currentLineNum: 0,
       currentShow: 'cd',
-      playingLyric: ''
+      playingLyric: '',
+      noLyricText: ''
     }
   },
   computed: {
@@ -300,12 +304,24 @@ export default {
           return
         }
         this.currentLyric = new Lyric(lyric, this.handleLyric)
-        if (this.playing) {
-          this.currentLyric.play()
+
+        if (this.currentLyric.lines.length < 1) {
+          let pureMusicLyric = this.currentLyric.lrc.split(']')[1]
+          this.currentLyric = null
+          this.playingLyric = pureMusicLyric
+          this.noLyricText = pureMusicLyric
+          console.log(this.currentLyric)
+          console.log(this.playingLyric)
+        } else {
+          if (this.playing) {
+            this.currentLyric.play()
+          }
         }
-      }).catch(() => { // 获取不到的时候要清空
+      }).catch((err) => { // 获取不到的时候要清空
+        console.log(err)
         this.currentLyric = null
-        this.playingLyric = ''
+        this.playingLyric = '无法获取歌词'
+        this.noLyricText = '无法获取歌词'
         this.currentLineNum = 0
       })
     },
@@ -619,6 +635,15 @@ export default {
               font-size: $font-size-medium
               &.current
                 color: $color-text
+          .no-lyric
+            width: 80%
+            height: 100%
+            margin: 0 auto
+            text-align: center
+            p
+              color: $color-text-l
+              font-size: $font-size-medium
+
       .bottom
         position: absolute
         bottom: 50px

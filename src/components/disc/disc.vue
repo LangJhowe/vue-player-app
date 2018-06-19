@@ -11,7 +11,6 @@ import {getSongList} from 'api/recommend'
 import {ERR_OK} from 'api/config'
 import {createSong} from 'common/js/song'
 import {getSongVkey} from 'api/song'
-import {promisesIter} from 'common/js/utils'
 export default {
   data() {
     return {

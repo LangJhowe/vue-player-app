@@ -45,7 +45,7 @@ export default {
       type: Boolean,
       default: false
     },
-    beforeScroll: {
+    beforeScroll: {// 在滚动开始派发一个beforeScroll时间
       type: Boolean,
       default: false
     },

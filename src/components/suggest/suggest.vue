@@ -1,7 +1,9 @@
 <template>
     <scroll class="suggest" :data="result"
-            @scrollToEnd="searchMore"
             :pullup="pullup"
+            :beforeScroll="beforeScroll"
+            @scrollToEnd="searchMore"
+            @beforeScroll="listScroll"
             ref="suggest">
         <ul class="suggest-list">
             <li class="suggest-item"
@@ -17,6 +19,9 @@
             </li>
             <loading v-show="hasMore" title=""></loading>
         </ul>
+        <div v-show="!hasMore && !result.length" class="no-result-wrapper">
+          <no-result title="抱歉，暂无搜索结果"></no-result>
+        </div>
     </scroll>
 </template>
 
@@ -29,6 +34,7 @@ import Loading from 'base/loading/loading'
 import Singer from 'common/js/singer'
 import {mapMutations, mapActions} from 'vuex'
 import {getSongVkey} from 'api/song'
+import NoResult from 'base/no-result/no-result'
 const TYPE_SINGER = 'singer'
 const perpage = 20
 export default {
@@ -47,7 +53,8 @@ export default {
       page: 1,
       result: [],
       pullup: true,
-      hasMore: true
+      hasMore: true,
+      beforeScroll: true
     }
   },
   methods: {
@@ -102,6 +109,9 @@ export default {
         this.insertSong(item)
       }
     },
+    listScroll() {
+      this.$emit('listScroll')
+    },
     _checkMore(data) {
       const song = data.song
       if (!song.list.length || (song.curnum + song.curpage * perpage) > song.totalnum) {
@@ -151,7 +161,8 @@ export default {
   },
   components: {
     Scroll,
-    Loading
+    Loading,
+    NoResult
   }
 
 }

@@ -15,6 +15,7 @@ import {ERR_OK} from 'api/config'
 import {mapGetters} from 'vuex'
 import {createSong} from 'common/js/song'
 import MusicList from 'components/music-list/music-list'
+import {promisesIter} from 'common/js/utils'
 export default {
   name: 'singerDetail', // 要给name 不给name eslint报错
   data() {
@@ -59,14 +60,31 @@ export default {
     _normalizeSongs(list) {
       // 旧 视频上的 但可以通过上方getSingerDetai内的getSongVkey获得vkey  且不影响列表顺序
       // 其他类似请求 想disc，rank，search都用这种方法
-      let ret = []
+      // let ret = []
       // console.log('We have this one')
-      list.forEach((item) => {
-        let {musicData} = item // 等价于musicData = item.musicData
+      // list.forEach((item) => {
+      //   let {musicData} = item // 等价于musicData = item.musicData
+      //   if (musicData.songid && musicData.albummid) {
+      //     ret.push(createSong(musicData))
+      //   }
+      // })
+      // return ret
+
+      // 旧 配合 promiseIter
+      let ret = []
+      console.log(list)
+      let promises = []
+      for (let i = 0; i < list.length; i++) {
+        promises.push(getSongVkey(list[i].musicData.songmid))
+      }
+      let thenFunction = (res, index) => {
+        let vkey = res.data.items[0].vkey
+        let {musicData} = list[index] // 等价于musicData = item.musicData
         if (musicData.songid && musicData.albummid) {
-          ret.push(createSong(musicData))
+          ret.push(createSong(musicData, vkey))
         }
-      })
+      }
+      promisesIter(promises, thenFunction)
       return ret
 
       // 新 但问题是每次退回在进入歌手详情 每次的列表都不一样，原因是getSongKey是异步并行 每次的顺序不能确定

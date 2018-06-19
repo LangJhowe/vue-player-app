@@ -66,7 +66,6 @@ export default {
       this.$refs.searchBox.blur()
     },
     saveSearch() {
-      console.log('do')
       this.saveSearchHistory(this.query)
     },
     _getHotKey() {

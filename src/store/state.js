@@ -10,6 +10,6 @@ const state = {
   currentIndex: -1, // 单签歌曲
   disc: {},
   topList: {},
-  history: loadSearch()// 从本地存储读取数据
+  searchHistory: loadSearch()// 从本地存储读取数据
 }
 export default state

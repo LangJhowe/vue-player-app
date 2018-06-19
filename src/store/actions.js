@@ -88,6 +88,5 @@ export const insertSong = function({commit, state}, song) {
 
 // 缓存到localStorage
 export const saveSearchHistory = function ({commit}, query) {
-  console.log(query)
   commit(types.SET_SEARCH_HISTORY, saveSearch(query))
 }

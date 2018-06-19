@@ -102,7 +102,6 @@ export default {
       } else {
         this.insertSong(item)
       }
-      console.log(this.searchHistory)
       this.$emit('select')
     },
     getIconCls(item) {

@@ -1,9 +1,9 @@
 <template>
   <div class="search-list">
     <transition-group name="list" tag="ul">
-      <li :key="index" class="search-item" v-for="(item,index) in searches">
+      <li @click="selectItem(item)" :key="index" class="search-item" v-for="(item,index) in searches">
         <span class="text">{{item}}</span>
-        <span class="icon">
+        <span class="icon" @click.stop="deleteOne(item)">
           <i class="icon-delete"></i>
         </span>
       </li>

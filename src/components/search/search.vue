@@ -15,16 +15,18 @@
         <div class="search-history" v-show="searchHistory.length">
           <h1 class="title">
             <span class="text">搜索历史</span>
-            <span class="clear">
+            <span class="clear" @click.stop="clearSearchHistory">
               <i class="icon-clear"></i>
             </span>
           </h1>
-          <search-list :searches="searchHistory"></search-list>
+          <search-list @select="addQuery"
+                       @delete="deleteSearchHistory"
+                      :searches="searchHistory"></search-list>
         </div>
       </div>
     </div>
     <div class="search-result" v-show="query">
-      <suggest @listScroll="blurInput" :query="query" @select="saveSearch"></suggest>
+      <suggest @listScroll="blurInput" :query="query"     @select="saveSearch"></suggest>
     </div>
     <router-view></router-view>
   </div>
@@ -76,7 +78,9 @@ export default {
       })
     },
     ...mapActions([
-      'saveSearchHistory'
+      'saveSearchHistory',
+      'deleteSearchHistory',
+      'clearSearchHistory'
     ])
   },
   components: {

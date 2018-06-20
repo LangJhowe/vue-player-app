@@ -4,17 +4,17 @@
       <div class="list-wrapper" @click.stop>
         <div class="list-header">
           <h1 class="title">
-            <i class="icon"></i>
-            <span class="text"></span>
-            <span class="clear">
+            <i class="icon" :class="iconMode" @click="changeMode"></i>
+            <span class="text">{{modeText}}</span>
+            <span class="clear" @click="showConfirm">
               <i class="icon-clear"></i>
             </span>
           </h1>
         </div>
         <scroll ref="listContent" :data="sequenceList" class="list-content">
           <!-- 按视频 结果ul伸展到list-header里面 整体上移46px 解决 ul样式 padding-top 46px -->
-            <ul>
-              <li ref="listItem" class="item" v-for="(item,index) in sequenceList" :key="index" @click="selectItem(item, index)">
+            <transition-group name="list" tag="ul">
+              <li ref="listItem" class="item" v-for="(item,index) in sequenceList" :key="item.id" @click="selectItem(item, index)">
                 <i class="current" :class="getCurrentIcon(item)"></i>
                 <span class="text">{{item.name}}</span>
                 <span class="like">
@@ -24,7 +24,7 @@
                   <i class="icon-delete"></i>
                 </span>
               </li>
-            </ul>
+            </transition-group>
         </scroll>
         <div class="list-operate">
           <div class="add">
@@ -36,27 +36,28 @@
           <span>关闭</span>
         </div>
       </div>
+      <confirm @confirm="confirmClear" ref="confirm" text="是否清空播放列表" confirmBtnText="清空"></confirm>
     </div>
   </transition>
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapActions } from 'vuex'
 import {playMode} from 'common/js/config'
 import Scroll from 'base/scroll/scroll'
+import Confirm from 'base/confirm/confirm'
+import {playerMixin} from 'common/js/mixin'
 export default {
+  mixins: [playerMixin],
   data() {
     return {
       showFlag: false
     }
   },
   computed: {
-    ...mapGetters([
-      'sequenceList',
-      'currentSong',
-      'playlist',
-      'mode'
-    ])
+    modeText() {
+      return this.mode === playMode.sequence ? '顺序播放' : this.mode === playMode.random ? '随机播放':'单曲循环'
+    }
   },
   methods: {
     show() {
@@ -97,12 +98,16 @@ export default {
         this.hide()
       }
     },
-    ...mapMutations({
-      setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayingState: 'SET_PLAYING_STATE'
-    }),
+    showConfirm() {
+      this.$refs.confirm.show()
+    },
+    confirmClear() {
+      this.deleteSongList()
+      this.hide()
+    },
     ...mapActions([
-      'deleteSong'
+      'deleteSong',
+      'deleteSongList'
     ])
   },
   watch: {
@@ -117,7 +122,8 @@ export default {
     }
   },
   components: {
-    Scroll
+    Scroll,
+    Confirm
   }
 }
 </script>
@@ -195,8 +201,8 @@ export default {
 
       ul{
         padding-top: 46px
-      }
-      .item {
+
+        .item {
         display: flex;
         align-items: center;
         height: 40px;
@@ -241,6 +247,7 @@ export default {
           font-size: $font-size-small;
           color: $color-theme;
         }
+      }
       }
     }
 

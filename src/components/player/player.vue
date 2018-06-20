@@ -310,8 +310,6 @@ export default {
           this.currentLyric = null
           this.playingLyric = pureMusicLyric
           this.noLyricText = pureMusicLyric
-          console.log(this.currentLyric)
-          console.log(this.playingLyric)
         } else {
           if (this.playing) {
             this.currentLyric.play()

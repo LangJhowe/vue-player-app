@@ -72,7 +72,6 @@ export default {
 
       // 旧 配合 promiseIter
       let ret = []
-      console.log(list)
       let promises = []
       for (let i = 0; i < list.length; i++) {
         promises.push(getSongVkey(list[i].musicData.songmid))

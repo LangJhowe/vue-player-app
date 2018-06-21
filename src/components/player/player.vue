@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import animations from 'create-keyframe-animation'
 import ProgressBar from 'base/progress-bar/progress-bar'
 import ProgressCircle from 'base/progress-circle/progress-circle'
@@ -228,6 +228,7 @@ export default {
     // create-keyframe-animation 使用 结束
     ready() {
       this.songReady = true
+      this.savePlayHistory(this.currentSong)
     },
     // 歌曲加载失败 例如url有问题  收费歌曲无法获得vkey
     // 导致无法 使得this.songReady = true next prev 无法使用
@@ -447,7 +448,10 @@ export default {
     },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN'
-    })
+    }),
+    ...mapActions([
+      'savePlayHistory'
+    ])
   },
   watch: {
     currentSong(newSong, oldSong) {

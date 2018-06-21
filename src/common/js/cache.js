@@ -4,7 +4,7 @@ import storage from 'good-storage' // 开源的storage库
 const SEARCH_KEY = '__search__' // 内部编码习惯
 const SEARCH_MAX_LEN = 15 // 定义缓存的长度，加入新的，最老的剔除
 
-const PLAY_KEY = '__play__'
+const PLAY_KEY = '__play__' // 播放历史
 const PLAY_MAX_LEN = 200
 
 const FAVORITE_KEY = '__favorite__'
@@ -59,7 +59,7 @@ export function loadSearch() { // searchHistory 本地缓存的信息传给searc
   return storage.get(SEARCH_KEY, [])
 }
 
-export function savePlay(song) {
+export function savePlay(song) { // 存储播放过的歌曲
   let songs = storage.get(PLAY_KEY, [])
   insertArray(songs, song, (item) => {
     return song.id === item.id
@@ -68,7 +68,7 @@ export function savePlay(song) {
   return songs
 }
 
-export function loadPlay() {
+export function loadPlay() { // 读取本地歌曲历史
   return storage.get(PLAY_KEY, [])
 }
 

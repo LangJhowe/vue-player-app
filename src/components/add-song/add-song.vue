@@ -18,7 +18,7 @@
               <song-list :songs="playHistory" @select="selectSong"></song-list>
             </div>
           </scroll>
-          <scroll ref="searchList" class="list-scroll" v-if="currentIndex === 1" :data="searchHistory">
+          <scroll :refreshDelay="refreshDelay" ref="searchList" class="list-scroll" v-if="currentIndex === 1" :data="searchHistory">
             <div class="list-inner">
               <search-list @delete="deleteSearchHistory" @select="addQuery" :searches="searchHistory"></search-list>
             </div>
@@ -28,6 +28,12 @@
       <div class="serach-result" v-show="query">
         <suggest :query="query" :showSinger="showSinger" @select="selectSuggest"></suggest>
       </div>
+      <top-tip ref="topTip" :delay="1000">
+        <div class="tip-title">
+          <i class="icon-ok"></i>
+          <span class="text">1首歌曲已经添加到播放队列</span>
+        </div>
+      </top-tip>
     </div>
   </transition>
 </template>
@@ -42,6 +48,7 @@ import SongList from 'base/song-list/song-list'
 import {mapGetters, mapActions} from 'vuex'
 import Song from 'common/js/song'
 import SearchList from 'base/search-list/search-list'
+import TopTip from 'base/top-tip/top-tip'
 export default {
   mixins: [searchMixin],
   data() {
@@ -78,13 +85,18 @@ export default {
     },
     selectSuggest() {
       this.saveSearch()
+      this.showTop()
     },
     switchItem(index) {
       this.currentIndex = index
     },
+    showTop() {
+      this.$refs.topTip.show()
+    },
     selectSong(song, index) {
       if (index !== 0) {
         this.insertSong(new Song(song))
+        this.showTop()
       }
     },
     ...mapActions([
@@ -97,7 +109,8 @@ export default {
     Switches,
     Scroll,
     SongList,
-    SearchList
+    SearchList,
+    TopTip
   }
 }
 </script>

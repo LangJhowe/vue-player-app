@@ -11,7 +11,7 @@
             </span>
           </h1>
         </div>
-        <scroll ref="listContent" :data="sequenceList" class="list-content">
+        <scroll ref="listContent" :refreshDelay="refreshDelay" :data="sequenceList" class="list-content">
           <!-- 按视频 结果ul伸展到list-header里面 整体上移46px 解决 ul样式 padding-top 46px -->
             <transition-group name="list" tag="ul">
               <li ref="listItem" class="item" v-for="(item,index) in sequenceList" :key="item.id" @click="selectItem(item, index)">
@@ -53,7 +53,8 @@ export default {
   mixins: [playerMixin],
   data() {
     return {
-      showFlag: false
+      showFlag: false,
+      refreshDelay: 100
     }
   },
   computed: {
@@ -205,55 +206,55 @@ export default {
       max-height: 240px;
       overflow: hidden;
 
-      ul{
-        padding-top: 46px
+        ul{
+          padding-top: 46px
 
-        .item {
-        display: flex;
-        align-items: center;
-        height: 40px;
-        padding: 0 30px 0 20px;
-        overflow: hidden;
+            .item {
+              display: flex;
+              align-items: center;
+              height: 40px;
+              padding: 0 30px 0 20px;
+              overflow: hidden;
 
-        &.list-enter-active, &.list-leave-active {
-          transition: all 0.1s;
+              &.list-enter-active, &.list-leave-active {
+                transition: all 0.1s;
+              }
+
+              &.list-enter, &.list-leave-to {
+                height: 0;
+              }
+
+              .current {
+                flex: 0 0 20px;
+                width: 20px;
+                font-size: $font-size-small;
+                color: $color-theme-d;
+              }
+
+              .text {
+                flex: 1;
+                no-wrap();
+                font-size: $font-size-medium;
+                color: $color-text-d;
+              }
+
+              .like {
+                extend-click();
+                margin-right: 15px;
+                font-size: $font-size-small;
+                color: $color-theme;
+
+                .icon-favorite {
+                  color: $color-sub-theme;
+                }
+              }
+
+              .delete {
+                extend-click();
+                font-size: $font-size-small;
+                color: $color-theme;
+              }
         }
-
-        &.list-enter, &.list-leave-to {
-          height: 0;
-        }
-
-        .current {
-          flex: 0 0 20px;
-          width: 20px;
-          font-size: $font-size-small;
-          color: $color-theme-d;
-        }
-
-        .text {
-          flex: 1;
-          no-wrap();
-          font-size: $font-size-medium;
-          color: $color-text-d;
-        }
-
-        .like {
-          extend-click();
-          margin-right: 15px;
-          font-size: $font-size-small;
-          color: $color-theme;
-
-          .icon-favorite {
-            color: $color-sub-theme;
-          }
-        }
-
-        .delete {
-          extend-click();
-          font-size: $font-size-small;
-          color: $color-theme;
-        }
-      }
       }
     }
 

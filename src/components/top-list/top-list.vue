@@ -44,6 +44,7 @@ export default {
         if (res.code === ERR_OK) {
           this.songs = this._normalizeSong(res.songlist)
           let list = this.songs
+          // 获取列表后再获取vkey更改url
           list.forEach((item) => {
             getSongVkey(item.mid).then((res) => {
               let vkey = res.data.items[0].vkey
@@ -54,9 +55,7 @@ export default {
       })
     },
     _normalizeSong(list) {
-      // 旧 歌曲顺序会乱
       let ret = []
-      console.log(list[0])
       // console.log('We have this one')
       list.forEach((item) => {
         let musicData = item.data

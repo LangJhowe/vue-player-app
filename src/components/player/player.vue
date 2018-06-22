@@ -86,7 +86,7 @@
       </div>
     </transition>
     <playlist ref="playlist"></playlist>
-    <audio ref="audio" :src="currentSong.url" @canplay="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
+    <audio ref="audio" :src="currentSong.url" @play="ready" @error="error" @timeupdate="updateTime" @ended="end"></audio>
   </div>
 </template>
 
@@ -262,6 +262,7 @@ export default {
       this.currentSong
         .getLyric()
         .then(lyric => {
+          // 快速切歌 歌词不会乱掉
           if (this.currentSong.lyric !== lyric) {
             return
           }
@@ -411,6 +412,7 @@ export default {
         // 当歌单只有一首歌的时候
         // currentSong不会改变也不会执行watch里的内容
         this.loop()
+        return // 当列表只有一首歌的时候 切歌 那么control都会disable
       } else {
         let index = this.currentIndex + 1
         if (index === this.playlist.length) {
@@ -469,7 +471,10 @@ export default {
         this.currentLineNum = 0
       }
       // 保证手机从后台到前台，歌曲可以重新播放
-      setTimeout(() => {
+      // bug 暂停时，快速点击切歌，歌曲会播放
+      // 解决 clearTimeout 和 audio canplay改成play保证先执行play，再ready
+      clearTimeout(this.timer)
+      this.timeer = setTimeout(() => {
         this.$refs.audio.play()
         this.getLyric()
       }, 1000)

@@ -1,46 +1,45 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import { resolve } from 'url'
 
 Vue.use(Router)
 
-const Recommend = (res) => {
+const Recommend = (resolve) => {
   import('components/recommend/recommend').then((module) => {
     resolve(module)
   })
 }
-const Rank = (res) => {
-  import('components/recommend/recommend').then((module) => {
+const Rank = (resolve) => {
+  import('components/rank/rank').then((module) => {
     resolve(module)
   })
 }
-const Search = (res) => {
-  import('components/recommend/recommend').then((module) => {
+const Search = (resolve) => {
+  import('components/search/search').then((module) => {
     resolve(module)
   })
 }
-const Singer = (res) => {
-  import('components/recommend/recommend').then((module) => {
+const Singer = (resolve) => {
+  import('components/singer/singer').then((module) => {
     resolve(module)
   })
 }
-const SingerDetail = (res) => {
-  import('components/recommend/recommend').then((module) => {
+const SingerDetail = (resolve) => {
+  import('components/singer-detail/singer-detail').then((module) => {
     resolve(module)
   })
 }
-const Disc = (res) => {
-  import('components/recommend/recommend').then((module) => {
+const Disc = (resolve) => {
+  import('components/disc/disc').then((module) => {
     resolve(module)
   })
 }
-const TopList = (res) => {
-  import('components/recommend/recommend').then((module) => {
+const TopList = (resolve) => {
+  import('components/top-list/top-list').then((module) => {
     resolve(module)
   })
 }
-const UserCenter = (res) => {
-  import('components/recommend/recommend').then((module) => {
+const UserCenter = (resolve) => {
+  import('components/user-center/user-center').then((module) => {
     resolve(module)
   })
 }
